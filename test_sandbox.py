@@ -25,10 +25,10 @@ class Backlog():
             print project['key']
             print project['name']
 
-    def close_issue(self):
-        self.backlog_handle.backlog.switchStatus({'key':'MLA-1774',
+    def close_issue(self, comment="This is a test post"):
+        self.backlog_handle.backlog.switchStatus({'key':'MLA-1776',
                                                   'statusId':4,
-                                                  'comment':'This is a test post'
+                                                  'comment':comment
                                                   })
 def read_ini(ini_filename = "backlog.ini"):
     """このスクリプトの配置パスになるbacklog.iniファイルを解析し、ユーザー名とパスワードを取得する
@@ -58,5 +58,5 @@ def read_ini(ini_filename = "backlog.ini"):
 if __name__ == '__main__':
     (username, password) = read_ini()
     Backlog_handle = Backlog(username, password)
-    Backlog_handle.close_issue()
+    Backlog_handle.close_issue(comment="ステージング環境でVMが過剰に稼働していることによるメモリの圧迫。後で不要なVMを停止する。")
 
