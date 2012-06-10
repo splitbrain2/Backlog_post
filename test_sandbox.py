@@ -21,6 +21,15 @@ def manipulate_backlog(username, password):
         print project['name']
 
 def read_ini(ini_filename = "backlog.ini"):
+    """このスクリプトの配置パスになるbacklog.iniファイルを解析し、ユーザー名とパスワードを取得する
+    backlog.ini
+    ------------
+    [Account]
+    user = anonymous
+    password = 1234abcd
+    ------------
+    """
+
     INI_FILE = os.path.join(os.path.dirname(__file__), ini_filename)
     ini = ConfigParser.SafeConfigParser()
     if os.path.exists(INI_FILE):
@@ -39,3 +48,4 @@ def read_ini(ini_filename = "backlog.ini"):
 if __name__ == '__main__':
     (username, password) = read_ini()
     manipulate_backlog(username, password)
+
