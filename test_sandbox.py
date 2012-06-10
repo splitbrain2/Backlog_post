@@ -25,6 +25,11 @@ class Backlog():
             print project['key']
             print project['name']
 
+    def close_issue(self):
+        self.backlog_handle.backlog.switchStatus({'key':'MLA-1774',
+                                                  'statusId':4,
+                                                  'comment':'This is a test post'
+                                                  })
 def read_ini(ini_filename = "backlog.ini"):
     """このスクリプトの配置パスになるbacklog.iniファイルを解析し、ユーザー名とパスワードを取得する
     backlog.ini
@@ -53,5 +58,5 @@ def read_ini(ini_filename = "backlog.ini"):
 if __name__ == '__main__':
     (username, password) = read_ini()
     Backlog_handle = Backlog(username, password)
-    Backlog_handle.display_projects()
+    Backlog_handle.close_issue()
 
