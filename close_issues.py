@@ -36,11 +36,20 @@ class Backlog():
         return userinfo['id']
 
     def close_issue(self, user_id, project, from_num, to_num, comment="This is a test post"):
-        self.backlog_handle.backlog.switchStatus({'key':'%s-%d' % (project, from_num),
-                                                  'statusId':4,
-                                                  'assignerId':user_id,
-                                                  'comment':comment
-                                                  })
+        if to_num == None:
+             self.backlog_handle.backlog.switchStatus({'key':'%s-%d' % (project, from_num),
+                                                      'statusId':4,
+                                                      'assignerId':user_id,
+                                                      'comment':comment
+                                                      })
+        else:
+            for x in range(from_num, to_num + 1):
+                self.backlog_handle.backlog.switchStatus({'key':'%s-%d' % (project, x),
+                                                          'statusId':4,
+                                                          'assignerId':user_id,
+                                                          'comment':comment
+                                                          })
+
 def read_ini(ini_filename = "backlog.ini"):
     """このスクリプトの配置パスになるbacklog.iniファイルを解析し、ユーザー名とパスワードを取得する
     backlog.ini
@@ -68,16 +77,17 @@ def read_ini(ini_filename = "backlog.ini"):
 # manipulate_backlog()
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--project', dest='project', help="Specify project name such as MLA or DAZ", required='True')
-    parser.add_argument('-f', '--from', dest='from_num', type=int, required='True')
-    parser.add_argument('-t', '--to', dest='to_num', type=int)
+    parser.add_argument('-p', '--project', dest='project', help="Project name such as MLA or DAZ", required='True')
+    parser.add_argument('-f', '--from', dest='from_num', type=int, help="Issue number to delete", required='True')
+    parser.add_argument('-t', '--to', dest='to_num', help='Issue number to delete from FROM_NUM to TO_NUM', type=int)
+    parser.add_argument('-c', '--comment', dest='comment', required='True')
     args = parser.parse_args()
 
     (username, password) = read_ini()
     Backlog_handle = Backlog(username, password)
     user_id = Backlog_handle.get_user_id()
     Backlog_handle.close_issue(user_id, args.project, args.from_num, args.to_num,
-                               comment="ステージング環境でVMが過剰に稼働していることによるメモリの圧迫。後で不要なVMを停止する。")
+                               comment=args.comment)
     #Backlog_handle.display_projects()
     #Backlog_handle.get_users()
 
