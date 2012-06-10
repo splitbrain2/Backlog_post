@@ -25,9 +25,19 @@ class Backlog():
             print project['key']
             print project['name']
 
-    def close_issue(self, comment="This is a test post"):
-        self.backlog_handle.backlog.switchStatus({'key':'MLA-1776',
+    def get_users(self):
+        """Test function"""
+        print self.backlog_handle.backlog.getUsers(28691)
+        
+    def get_user_id(self):
+        # userinfo = self.backlog_handle.backlog.getUser({'id':"tanaka"})
+        userinfo = self.backlog_handle.backlog.getUser(self.username)
+        return userinfo['id']
+
+    def close_issue(self, user_id, comment="This is a test post"):
+        self.backlog_handle.backlog.switchStatus({'key':'MLA-1778',
                                                   'statusId':4,
+                                                  'assignerId':user_id,
                                                   'comment':comment
                                                   })
 def read_ini(ini_filename = "backlog.ini"):
@@ -58,5 +68,8 @@ def read_ini(ini_filename = "backlog.ini"):
 if __name__ == '__main__':
     (username, password) = read_ini()
     Backlog_handle = Backlog(username, password)
-    Backlog_handle.close_issue(comment="ステージング環境でVMが過剰に稼働していることによるメモリの圧迫。後で不要なVMを停止する。")
+    user_id = Backlog_handle.get_user_id()
+    Backlog_handle.close_issue(user_id, comment="ステージング環境でVMが過剰に稼働していることによるメモリの圧迫。後で不要なVMを停止する。")
+    #Backlog_handle.display_projects()
+    #Backlog_handle.get_users()
 
