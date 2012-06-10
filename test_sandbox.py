@@ -2,9 +2,8 @@
 # -*- coding:utf-8 -*-
 
 import xmlrpclib
-
-USER="xxxx"
-PASSWORD="xxxx"
+import ConfigParser
+import os
 
 # すべてのメソッドで使用するURLは次の通り
 # https://[スペースID].backlog.jp/XML-RPC
@@ -13,14 +12,30 @@ PASSWORD="xxxx"
 # https://[ユーザー名]:[パスワード]@[スペースID].backlog.jp/XML-RPC
 
 
-def manipulate_backlog():
-    #backlog = xmlrpclib.ServerProxy("https://gluegent.backlog.jp/XML-RPC")# % (USER, PASSWORD))
-    backlog = xmlrpclib.ServerProxy("https://%s:%s@gluegent.backlog.jp/XML-RPC" % (USER, PASSWORD))
+def manipulate_backlog(username, password):
+    backlog = xmlrpclib.ServerProxy("https://%s:%s@gluegent.backlog.jp/XML-RPC" % (username, password))
     projects = backlog.backlog.getProjects()
     for project in projects:
         print project['id']
         print project['key']
         print project['name']
 
-manipulate_backlog()
+def read_ini(ini_filename = "backlog.ini"):
+    INI_FILE = os.path.join(os.path.dirname(__file__), ini_filename)
+    ini = ConfigParser.SafeConfigParser()
+    if os.path.exists(INI_FILE):
+        file = open(INI_FILE, 'r')
+        ini.readfp(file)
+        file.close()
+    else:
+        print 'Cannot find %s' % INI_FILE
+        import sys
+        sys.exit(1)
+    username = ini.get('Account', 'user')
+    password = ini.get('Account', 'password')
+    return (username, password)
 
+# manipulate_backlog()
+if __name__ == '__main__':
+    (username, password) = read_ini()
+    manipulate_backlog(username, password)
