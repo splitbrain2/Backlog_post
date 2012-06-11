@@ -35,7 +35,7 @@ class Backlog():
         userinfo = self.backlog_handle.backlog.getUser(self.username)
         return userinfo['id']
 
-    def close_issue(self, user_id, project, from_num, to_num, comment="This is a test post"):
+    def close_issue_range(self, user_id, project, from_num, to_num, comment="This is a test post"):
         if to_num == None:
              self.backlog_handle.backlog.switchStatus({'key':'%s-%d' % (project, from_num),
                                                       'statusId':4,
@@ -49,6 +49,14 @@ class Backlog():
                                                           'assignerId':user_id,
                                                           'comment':comment
                                                           })
+    def close_issue_enumrate(self, user_id, project, case_nums, comment="This is a test post"):
+        for case_num in case_nums:
+            self.backlog_handle.backlog.switchStatus({'key':'%s-%d' % (project, case_num),
+                                                      'statusId':4,
+                                                      'assignerId':user_id,
+                                                      'comment':comment
+                                                      })
+
 
 def read_ini(ini_filename = "backlog.ini"):
     """このスクリプトの配置パスになるbacklog.iniファイルを解析し、ユーザー名とパスワードを取得する
@@ -70,6 +78,7 @@ def read_ini(ini_filename = "backlog.ini"):
         print 'Cannot find %s' % INI_FILE
         import sys
         sys.exit(1)
+
     username = ini.get('Account', 'user')
     password = ini.get('Account', 'password')
     return (username, password)
@@ -78,16 +87,19 @@ def read_ini(ini_filename = "backlog.ini"):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--project', dest='project', help="Project name such as MLA or DAZ", required='True')
-    parser.add_argument('-f', '--from', dest='from_num', type=int, help="Issue number to delete", required='True')
+    parser.add_argument('-f', '--from', dest='from_num', type=int, help="Issue number to delete")
     parser.add_argument('-t', '--to', dest='to_num', help='Issue number to delete from FROM_NUM to TO_NUM', type=int)
-    parser.add_argument('-c', '--comment', dest='comment', required='True')
+    parser.add_argument('-c', '--comment', dest='comment', help='Comment to post', required='True')
+    parser.add_argument('cases', nargs='*', type=int)
     args = parser.parse_args()
 
     (username, password) = read_ini()
     Backlog_handle = Backlog(username, password)
     user_id = Backlog_handle.get_user_id()
-    Backlog_handle.close_issue(user_id, args.project, args.from_num, args.to_num,
-                               comment=args.comment)
-    #Backlog_handle.display_projects()
-    #Backlog_handle.get_users()
+    if args.cases != []:
+        Backlog_handle.close_issue_enumrate(user_id, args.project, args.cases, comment=args.comment)
+    if args.from_num != None:
+        Backlog_handle.close_issue_range(user_id, args.project, args.from_num, args.to_num,
+                                         comment=args.comment)
+
 
