@@ -13,10 +13,11 @@ import argparse # Python 2.7〜
 # https://[ユーザー名]:[パスワード]@[スペースID].backlog.jp/XML-RPC
 
 class Backlog():
-    def __init__(self, username, password):
+    def __init__(self, username, password, space):
         self.username = username
         self.password = password
-        self.backlog_url = "https://%s:%s@gluegent.backlog.jp/XML-RPC" % (self.username, self.password)
+        self.space = space
+        self.backlog_url = "https://%s:%s@%s.backlog.jp/XML-RPC" % (self.username, self.password, self.space)
         self.backlog_handle = xmlrpclib.ServerProxy(self.backlog_url)
 
     def display_projects(self):
@@ -31,7 +32,6 @@ class Backlog():
         print self.backlog_handle.backlog.getUsers(28691)
         
     def get_user_id(self):
-        # userinfo = self.backlog_handle.backlog.getUser({'id':"tanaka"})
         userinfo = self.backlog_handle.backlog.getUser(self.username)
         return userinfo['id']
 
@@ -41,7 +41,7 @@ class Backlog():
                                                       'statusId':4,
                                                       'assignerId':user_id,
                                                       'comment':comment
-                                                      })
+                                                     })
         else:
             for x in range(from_num, to_num + 1):
                 self.backlog_handle.backlog.switchStatus({'key':'%s-%d' % (project, x),
@@ -59,12 +59,13 @@ class Backlog():
 
 
 def read_ini(ini_filename = "backlog.ini"):
-    """このスクリプトの配置パスになるbacklog.iniファイルを解析し、ユーザー名とパスワードを取得する
+    """このスクリプトの配置パスになるbacklog.iniファイルを解析し、ユーザー名とパスワード、スペース名を取得する
     backlog.ini
     ------------
     [Account]
     user = anonymous
     password = 1234abcd
+    space = your_space
     ------------
     """
 
@@ -81,7 +82,8 @@ def read_ini(ini_filename = "backlog.ini"):
 
     username = ini.get('Account', 'user')
     password = ini.get('Account', 'password')
-    return (username, password)
+    space = ini.get('Account', 'space')
+    return (username, password, space)
 
 # manipulate_backlog()
 if __name__ == '__main__':
@@ -93,8 +95,8 @@ if __name__ == '__main__':
     parser.add_argument('cases', nargs='*', type=int)
     args = parser.parse_args()
 
-    (username, password) = read_ini()
-    Backlog_handle = Backlog(username, password)
+    (username, password, space) = read_ini()
+    Backlog_handle = Backlog(username, password, space)
     user_id = Backlog_handle.get_user_id()
     if args.cases != []:
         Backlog_handle.close_issue_enumrate(user_id, args.project, args.cases, comment=args.comment)
